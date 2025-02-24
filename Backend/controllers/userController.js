@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import User from '../models/User.js';
 import dotenv from 'dotenv';
+import jwt from "jsonwebtoken";
 
 dotenv.config();
 
@@ -43,4 +44,29 @@ const registerUser = async (req, res) => {
   }
 };
 
-export { registerUser };
+// Login controller
+const loginUser = async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: "Both username and password are required." });
+  }
+  try {
+    const user = await User.findOne({ where: { username } });
+    if (!user) {
+      return res.status(401).json({ error: "Invalid username or password." });
+    }
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(401).json({ error: "Invalid username or password." });
+    }
+    // Generate a JWT token
+    const tokenPayload = { id: user.id, username: user.username, role: user.role };
+    const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, { expiresIn: "1h" });
+    return res.status(200).json({ message: "Login successful", token });
+  } catch (error) {
+    console.error("Error during login:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export { registerUser, loginUser  };
