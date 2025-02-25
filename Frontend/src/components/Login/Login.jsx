@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import BackgroundImage from "../../assets/background.jpg";
 import LogoImage from "../../assets/duck-logo.png";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "../../slices/authSlice";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -9,6 +11,7 @@ function Login() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,7 +31,14 @@ function Login() {
       }
 
       setSuccess("Login successful!");
-      // Save the token for future authenticated requests
+      // Dispatch the loginSuccess action with the token and user information.
+      dispatch(
+        loginSuccess({
+          token: data.token,
+          user: data.user, // Ensure your backend sends a user object containing the role
+        })
+      );
+      // Optionally save the token for future requests (e.g., in localStorage)
       localStorage.setItem("token", data.token);
 
       // Redirect to the dashboard after a short delay

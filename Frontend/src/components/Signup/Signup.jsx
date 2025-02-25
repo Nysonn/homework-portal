@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import BackgroundImage from "../../assets/background.jpg";
 import LogoImage from "../../assets/duck-logo.png";
 import { Link, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 function Signup() {
   const [username, setUsername] = useState("");
@@ -9,7 +10,15 @@ function Signup() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  const navigate = useNavigate(); // For navigation
+  const navigate = useNavigate();
+
+  // If a user is already logged in, redirect them to the dashboard.
+  const { user } = useSelector((state) => state.auth);
+  useEffect(() => {
+    if (user) {
+      navigate("/classdashboard");
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,8 +41,8 @@ function Signup() {
       }
 
       setSuccess("Account created successfully!");
-      
-      // Redirect to the login page after a short delay to show the success message
+
+      // Redirect to the login page after a short delay to show the success message.
       setTimeout(() => {
         navigate("/");
       }, 1000);

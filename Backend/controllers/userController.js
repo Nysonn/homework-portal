@@ -62,11 +62,19 @@ const loginUser = async (req, res) => {
     // Generate a JWT token
     const tokenPayload = { id: user.id, username: user.username, role: user.role };
     const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, { expiresIn: "1h" });
-    return res.status(200).json({ message: "Login successful", token });
+    
+    // Exclude the password field before sending the user data back
+    const { password: pwd, ...userData } = user.toJSON();
+
+    return res.status(200).json({ 
+      message: "Login successful", 
+      token, 
+      user: userData 
+    });
   } catch (error) {
     console.error("Error during login:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export { registerUser, loginUser  };
+export { registerUser, loginUser };

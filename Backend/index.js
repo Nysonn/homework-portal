@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import sequelize from './config/database.js';
 import userRoutes from './routes/userRoutes.js';
+import homeworkRoutes from './routes/homeworkRoutes.js';
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 
 // Mount routes
 app.use('/api', userRoutes);
+app.use("/api", homeworkRoutes);
 
 // A simple test endpoint
 app.get('/', (req, res) => {
