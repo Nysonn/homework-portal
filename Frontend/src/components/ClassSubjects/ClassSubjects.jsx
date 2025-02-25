@@ -18,10 +18,23 @@ function ClassSubjects() {
           <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-1/4 h-1 bg-gradient-to-r from-pink-400 to-blue-400 rounded-full"></div>
         </h1>
         {user && (
-          <div className="text-center mb-6">
-            <p className="text-lg text-gray-700">
-              Welcome, {user.username} ({user.role})
-            </p>
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center px-6 py-3 bg-white/90 rounded-full shadow-md">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-blue-500 flex items-center justify-center">
+                <span className="text-white font-semibold text-lg">
+                  {user.username[0].toUpperCase()}
+                </span>
+              </div>
+              <div className="ml-3">
+                <p className="text-gray-700 font-medium">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-blue-600">
+                    {user.role}
+                  </span>
+                  <span className="mx-2">·</span>
+                  {user.username}
+                </p>
+              </div>
+            </div>
           </div>
         )}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
