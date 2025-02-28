@@ -16,14 +16,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from the "uploads" folder if needed.
-app.use("/uploads", express.static("uploads"));
-
-// Create uploads directory if it doesn't exist
-if (!fs.existsSync('uploads')) {
-    fs.mkdirSync('uploads');
-}
-
 // Mount routes
 app.use('/api/homework', homeworkRoutes);
 app.use('/api', userRoutes);

@@ -1,5 +1,6 @@
 import Homework from "../models/homework.js";
 import cloudinary from "../config/cloudinary.js";
+import { Readable } from "stream";
 
 export const getHomework = async (req, res) => {
   const { class: className, subject } = req.query;
@@ -21,6 +22,7 @@ export const getHomework = async (req, res) => {
   }
 };
 
+//FUNCTION TO UPLOAD PDF FILE TO THE CLOUDINARY PLATFORM
 export const uploadHomework = async (req, res) => {
   try {
     const { title, description, className, subject } = req.body;
@@ -29,24 +31,36 @@ export const uploadHomework = async (req, res) => {
       return res.status(400).json({ error: "File is required" });
     }
 
-    // Validate file type (only PDF)
     if (req.file.mimetype !== "application/pdf") {
       return res.status(400).json({ error: "Only PDF files are allowed" });
     }
 
-    // Upload the file to Cloudinary.
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      resource_type: "raw", // Ensures the file is handled as a raw file.
-      folder: "homework_pdfs",
+    // Cloudinary upload_stream requires a readable stream
+    const bufferStream = new Readable();
+    bufferStream.push(req.file.buffer);
+    bufferStream.push(null);
+
+    let cloudinaryResult;
+    const uploadPromise = new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { resource_type: "raw", folder: "homework_pdfs" },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        }
+      );
+      bufferStream.pipe(stream);
     });
 
-    // Create new homework record.
+    cloudinaryResult = await uploadPromise;
+
+    // Create new homework record
     const homework = await Homework.create({
       title,
       description,
       className,
       subject,
-      fileUrl: result.secure_url,
+      fileUrl: cloudinaryResult.secure_url,
     });
 
     return res.status(201).json({ homework });

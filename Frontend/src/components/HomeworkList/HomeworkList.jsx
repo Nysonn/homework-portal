@@ -59,7 +59,7 @@ function HomeworkList() {
       formData.append("file", file);
 
       // POST the new homework to the backend API
-      const response = await fetch("http://localhost:3001/api/homework", {
+      const response = await fetch(`http://localhost:3001/api/homework?class=${className}&subject=${subjectName}`, {
         method: "POST",
         body: formData,
       });
