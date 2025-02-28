@@ -24,32 +24,28 @@ function Signup() {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-
+  
     try {
       const response = await fetch("http://localhost:3001/api/signup", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // Include credentials for session management
         body: JSON.stringify({ username, role, password }),
       });
-
+  
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data.error || "Signup failed");
       }
-
+  
       setSuccess("Account created successfully!");
-
-      // Redirect to the login page after a short delay to show the success message.
       setTimeout(() => {
         navigate("/");
       }, 1000);
     } catch (err) {
       setError(err.message);
     }
-  };
+  };  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-200 to-blue-200 relative overflow-hidden">

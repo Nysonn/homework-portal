@@ -1,14 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import useHomework from "../../hooks/useHomework";
+import useAiRecommendation from "../../hooks/useAiRecommendation"; 
+import {
+  uploadHomework,
+  deleteHomework,
+  downloadHomework,
+} from "../../api/homeworkAPI";
 
 function HomeworkList() {
   const { className, subjectName } = useParams();
-  const [homework, setHomework] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { homework, setHomework, loading, error } = useHomework(className, subjectName);
 
-  // Get user info from Redux state and normalize role to lowercase to ensure case-insensitive comparisons.
+  // Get user info from Redux state and normalize role to lowercase.
   const user = useSelector((state) => state.auth.user);
   const userRole = user?.role ? user.role.toLowerCase() : "parent";
 
@@ -19,27 +24,15 @@ function HomeworkList() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
 
-  useEffect(() => {
-    const fetchHomework = async () => {
-      try {
-        // Query the homework API with the class and subject as parameters
-        const response = await fetch(
-          `http://localhost:3001/api/homework?class=${className}&subject=${subjectName}`
-        );
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to fetch homework");
-        }
-        setHomework(data.homework);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Use AI recommendation hook whenever title changes
+  const { recommendation, loading: aiLoading } = useAiRecommendation(title);
 
-    fetchHomework();
-  }, [className, subjectName]);
+  // Optionally, auto-fill description if teacher hasn’t typed anything yet.
+  const handleAutoFill = () => {
+    if (!description && recommendation) {
+      setDescription(recommendation);
+    }
+  };
 
   // Handler for uploading homework (only available to teachers)
   const handleUpload = async (e) => {
@@ -58,18 +51,8 @@ function HomeworkList() {
       formData.append("subject", subjectName);
       formData.append("file", file);
 
-      // POST the new homework to the backend API
-      const response = await fetch(`http://localhost:3001/api/homework?class=${className}&subject=${subjectName}`, {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Upload failed.");
-      }
-      // Add the newly uploaded homework to the state list
-      setHomework((prevHomework) => [...prevHomework, data.homework]);
-      // Reset the form fields
+      const newHomework = await uploadHomework(formData, className, subjectName);
+      setHomework((prevHomework) => [...prevHomework, newHomework]);
       setTitle("");
       setDescription("");
       setFile(null);
@@ -80,17 +63,20 @@ function HomeworkList() {
     }
   };
 
+  // Handler for downloading homework files
+  const handleDownload = async (fileUrl, fileName = `${title}.pdf`) => {
+    try {
+      await downloadHomework(fileUrl, fileName);
+    } catch (err) {
+      console.error("Download error:", err);
+      alert("Failed to download file. Please try again.");
+    }
+  };
+
   // Handler for deleting homework (only available to teachers)
   const handleDelete = async (homeworkId) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/homework/${homeworkId}`, {
-        method: "DELETE",
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Deletion failed.");
-      }
-      // Update state by removing the deleted homework
+      await deleteHomework(homeworkId);
       setHomework((prevHomework) =>
         prevHomework.filter((hw) => hw.id !== homeworkId)
       );
@@ -134,6 +120,7 @@ function HomeworkList() {
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
+                  onBlur={handleAutoFill} // Optionally auto-fill description on blur
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent outline-none transition-all duration-300"
                   required
                 />
@@ -145,8 +132,19 @@ function HomeworkList() {
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
+                  placeholder={aiLoading ? "Generating recommendation..." : recommendation || "Enter description here..."}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent outline-none transition-all duration-300 min-h-[100px]"
                 />
+                {/* Alternatively, you can offer a button to manually set the recommendation */}
+                {recommendation && !description && (
+                  <button
+                    type="button"
+                    onClick={() => setDescription(recommendation)}
+                    className="mt-2 text-sm text-blue-500 hover:underline"
+                  >
+                    Use AI Recommendation
+                  </button>
+                )}
               </div>
               <div className="mb-6">
                 <label className="block text-gray-700 font-semibold mb-2">
@@ -199,14 +197,14 @@ function HomeworkList() {
                       </p>
                     </div>
                     <div className="flex items-center gap-4">
-                      <a
-                        href={hw.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        onClick={() =>
+                          handleDownload(hw.fileUrl, `${hw.title}.pdf`)
+                        }
                         className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-pink-500 to-blue-500 text-white font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
                       >
                         Download
-                      </a>
+                      </button>
                       {userRole === "teacher" && (
                         <button
                           onClick={() => handleDelete(hw.id)}

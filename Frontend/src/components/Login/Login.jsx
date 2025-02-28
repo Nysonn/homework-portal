@@ -17,31 +17,27 @@ function Login() {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-
+  
     try {
       const response = await fetch("http://localhost:3001/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // Ensure cookies are sent and received
         body: JSON.stringify({ username, password }),
       });
-
+  
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.error || "Login failed");
       }
-
+  
       setSuccess("Login successful!");
-      // Dispatch the loginSuccess action with the token and user information.
-      dispatch(
-        loginSuccess({
-          token: data.token,
-          user: data.user, // Ensure your backend sends a user object containing the role
-        })
-      );
-      // Optionally save the token for future requests (e.g., in localStorage)
+      dispatch(loginSuccess({
+        token: data.token,
+        user: data.user,
+      }));
       localStorage.setItem("token", data.token);
-
-      // Redirect to the dashboard after a short delay
+  
       setTimeout(() => {
         navigate("/classdashboard");
       }, 1000);
@@ -49,6 +45,7 @@ function Login() {
       setError(err.message);
     }
   };
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-200 to-blue-200 relative overflow-hidden">
