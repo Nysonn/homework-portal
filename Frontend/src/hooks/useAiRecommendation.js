@@ -15,12 +15,15 @@ const useAiRecommendation = (title) => {
     const timer = setTimeout(() => {
       setLoading(true);
       axios
-        .post("/api/ai-recommendation", { title })
+        .post("http://localhost:3001/api/ai-recommendation", { title }, {
+          withCredentials: true
+        })
         .then((response) => {
           setRecommendation(response.data.recommendation);
           setLoading(false);
         })
         .catch((err) => {
+          console.error("AI Recommendation Error:", err);
           setError(err.message);
           setLoading(false);
         });

@@ -1,27 +1,55 @@
 import express from "express";
-import { Configuration, OpenAIApi } from "openai";
+import LlamaAI from "llamaai";
 
 const router = express.Router();
 
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-const openaiClient = new OpenAIApi(configuration);
+// Initialize the Llama AI client using your API key from your .env file
+const llamaAPI = new LlamaAI(process.env.LLAMA_API_KEY);
 
 router.post("/", async (req, res) => {
   const { title } = req.body;
   try {
-    const prompt = `Generate a short and engaging homework description based on the title: "${title}"`;
-    const response = await openaiClient.createCompletion({
-      model: "text-davinci-003",
-      prompt,
-      max_tokens: 50,
-      temperature: 0.7,
-    });
-    const recommendation = response.data.choices[0].text.trim();
+    if (!process.env.LLAMA_API_KEY) {
+      throw new Error("Llama API key is not configured");
+    }
+
+    // Construct the prompt
+    const prompt = `Generate a short and engaging homework description based on the title: "${title}". The description should be concise, clear, and provide guidance to students.`;
+
+    // Build the API request payload
+    const apiRequestJson = {
+      messages: [
+        {
+          role: "system",
+          content: "You are a helpful assistant that generates homework descriptions."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      stream: false
+    };
+
+    // Call the Llama AI API using the run() method
+    const response = await llamaAPI.run(apiRequestJson);
+
+    // Debug: Log the raw response to inspect its structure (remove in production)
+    console.log("Raw Llama API response:", response);
+
+    // Extract the generated recommendation from the response
+    const recommendation = response.message?.content?.trim();
+    if (!recommendation) {
+      throw new Error("No recommendation returned from Llama AI API");
+    }
+
     res.json({ recommendation });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Llama API Error:", error);
+    res.status(500).json({ 
+      error: error.message || "Failed to generate recommendation",
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 
