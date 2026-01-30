@@ -1,0 +1,14 @@
+services:
+  backend:
+    build: .
+    ports:
+      - "3001:3001"
+    # Load environment from host .env so the app uses Neon Postgres
+    env_file:
+      - .env
+    environment:
+      # Ensure environment variables are passed through
+      - DATABASE_URL=${DATABASE_URL}
+      - SESSION_SECRET=${SESSION_SECRET:-your-session-secret-key}
+      - PORT=3001
+    command: node index.js
