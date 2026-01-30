@@ -15,7 +15,7 @@ const useAiRecommendation = (title) => {
     const timer = setTimeout(() => {
       setLoading(true);
       axios
-        .post("http://localhost:3001/api/ai-recommendation", { title }, {
+        .post("https://homework-portal-71ei.onrender.com/api/ai-recommendation", { title }, {
           withCredentials: true
         })
         .then((response) => {

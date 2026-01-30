@@ -18,7 +18,7 @@ function LoginForm() {
     setSuccess(null);
 
     try {
-      const response = await fetch("http://localhost:3001/api/login", {
+      const response = await fetch("https://homework-portal-71ei.onrender.com/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // Ensure cookies are sent and received

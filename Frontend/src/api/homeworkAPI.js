@@ -1,6 +1,6 @@
 export const fetchHomework = async (className, subjectName) => {
     const response = await fetch(
-      `http://localhost:3001/api/homework?class=${className}&subject=${subjectName}`
+      `https://homework-portal-71ei.onrender.com/api/homework?class=${className}&subject=${subjectName}`
     );
     const data = await response.json();
     if (!response.ok) {
@@ -11,7 +11,7 @@ export const fetchHomework = async (className, subjectName) => {
   
   export const uploadHomework = async (formData, className, subjectName) => {
     const response = await fetch(
-      `http://localhost:3001/api/homework?class=${className}&subject=${subjectName}`,
+      `https://homework-portal-71ei.onrender.com/api/homework?class=${className}&subject=${subjectName}`,
       {
         method: "POST",
         body: formData,
@@ -26,7 +26,7 @@ export const fetchHomework = async (className, subjectName) => {
   
   export const deleteHomework = async (homeworkId) => {
     const response = await fetch(
-      `http://localhost:3001/api/homework/${homeworkId}`,
+      `https://homework-portal-71ei.onrender.com/api/homework/${homeworkId}`,
       { method: "DELETE" }
     );
     const data = await response.json();

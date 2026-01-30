@@ -16,7 +16,7 @@ function SignupForm() {
     setSuccess(null);
 
     try {
-      const response = await fetch("http://localhost:3001/api/signup", {
+      const response = await fetch("https://homework-portal-71ei.onrender.com/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // Include credentials for session management
