@@ -97,9 +97,12 @@ clean-all: ## Remove all containers, images, volumes, and networks
 .PHONY: env-example
 env-example: ## Create example environment file
 	@echo "$(GREEN)Creating .env.example file...$(NC)"
-	@echo "DATABASE_URL=postgresql://neondb_owner:npg_2eyVCn8sJarR@ep-quiet-firefly-ahuvsiof-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require" > .env.example
+	@echo "DATABASE_URL=postgresql://username:password@host:port/database?sslmode=require" > .env.example
 	@echo "SESSION_SECRET=your-super-secret-session-key-here" >> .env.example
 	@echo "PORT=3001" >> .env.example
+	@echo "CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name" >> .env.example
+	@echo "CLOUDINARY_API_KEY=your-cloudinary-api-key" >> .env.example
+	@echo "CLOUDINARY_API_SECRET=your-cloudinary-api-secret" >> .env.example
 	@echo "Created .env.example - copy to .env and update values"
 
 .PHONY: check-env
