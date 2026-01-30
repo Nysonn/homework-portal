@@ -7,6 +7,7 @@ import Signup from "./components/Signup/Signup";
 import ClassDashboard from "./components/Dashboard/ClassDashboard";
 import ClassSubjects from "./components/ClassSubjects/ClassSubjects";
 import HomeworkList from "./components/HomeworkList/HomeworkList";
+import NotFound from "./components/NotFound/NotFound";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/classdashboard" element={<ClassDashboard />} />
           <Route path="/class/:className" element={<ClassSubjects />} />
           <Route path="/class/:className/subject/:subjectName" element={<HomeworkList />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </Provider>

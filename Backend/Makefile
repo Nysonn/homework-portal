@@ -99,6 +99,7 @@ env-example: ## Create example environment file
 	@echo "$(GREEN)Creating .env.example file...$(NC)"
 	@echo "DATABASE_URL=postgresql://username:password@host:port/database?sslmode=require" > .env.example
 	@echo "SESSION_SECRET=your-super-secret-session-key-here" >> .env.example
+	@echo "JWT_SECRET=your-super-secret-jwt-key-here" >> .env.example
 	@echo "PORT=3001" >> .env.example
 	@echo "CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name" >> .env.example
 	@echo "CLOUDINARY_API_KEY=your-cloudinary-api-key" >> .env.example
